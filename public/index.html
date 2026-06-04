@@ -154,8 +154,17 @@
         groq: "openai/gpt-oss-120b",
       };
 
+      const modelProviderMap = {
+        "gemma-4-26b-a4b-it": "google",
+        "openai/gpt-oss-120b": "groq",
+      };
+
       providerSelect.addEventListener("change", () => {
         modelSelect.value = providerModelMap[providerSelect.value];
+      });
+
+      modelSelect.addEventListener("change", () => {
+        providerSelect.value = modelProviderMap[modelSelect.value];
       });
 
       function addBubble(role, content) {
