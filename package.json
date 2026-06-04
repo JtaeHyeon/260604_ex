@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "01": "nodemon 01_express.js"
+    "01": "nodemon 01_express.js",
+    "02": "nodemon 02_sdk.js"
   },
   "dependencies": {
+    "@google/genai": "^2.8.0",
     "express": "^5.2.1"
   },
   "devDependencies": {
