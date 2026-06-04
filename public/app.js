@@ -14,9 +14,10 @@ const imagePreviewBar = document.querySelector("#imagePreviewBar");
 const previewImg     = document.querySelector("#previewImg");
 const previewName    = document.querySelector("#previewName");
 const removeImageBtn = document.querySelector("#removeImageBtn");
-const newChatBtn     = document.querySelector("#newChatBtn");
-const sessionList    = document.querySelector("#sessionList");
-const emptyState     = document.querySelector("#emptyState");
+const newChatBtn       = document.querySelector("#newChatBtn");
+const sessionList      = document.querySelector("#sessionList");
+const emptyState       = document.querySelector("#emptyState");
+const scrollBottomBtn  = document.querySelector("#scrollBottomBtn");
 
 // ---- State ----
 let messages        = [];
@@ -103,6 +104,16 @@ askInput.addEventListener("input", () => {
 function updateSendBtn() {
   sendBtn.disabled = !askInput.value.trim() && !selectedImage;
 }
+
+// ---- Scroll Bottom Button ----
+chatContainer.addEventListener("scroll", () => {
+  const distFromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+  scrollBottomBtn.classList.toggle("visible", distFromBottom > 120);
+});
+
+scrollBottomBtn.addEventListener("click", () => {
+  chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: "smooth" });
+});
 
 function updateEmptyState() {
   emptyState.classList.toggle("hidden", messages.length > 0);
@@ -330,6 +341,14 @@ function addCodeCopyButtons(bubble) {
 // ---- Streaming ----
 async function streamResponse(bubble, imageBase64 = null, imageMimeType = null) {
   let fullText = "";
+  let firstChunk = true;
+
+  // 첫 청크 오기 전 dot 애니메이션 표시
+  const dots = document.createElement("span");
+  dots.className = "thinking-dots";
+  dots.innerHTML = "<span></span><span></span><span></span>";
+  bubble.append(dots);
+
   try {
     const response = await fetch("/chat", {
       method: "POST",
@@ -357,6 +376,7 @@ async function streamResponse(bubble, imageBase64 = null, imageMimeType = null) 
         try {
           const { chunk, error } = JSON.parse(data);
           if (error) throw new Error(error);
+          if (firstChunk) { dots.remove(); firstChunk = false; }
           fullText += chunk;
           bubble._rawText = fullText;
           bubble.innerHTML = DOMPurify.sanitize(marked.parse(fullText));
