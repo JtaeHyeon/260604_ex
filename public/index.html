@@ -150,6 +150,15 @@
       // 대화 히스토리 — 브라우저 메모리에 보관
       const messages = [];
 
+      const providerModelMap = {
+        google: "gemma-4-26b-a4b-it",
+        groq: "openai/gpt-oss-120b",
+      };
+
+      providerSelect.addEventListener("change", () => {
+        modelSelect.value = providerModelMap[providerSelect.value];
+      });
+
       function addBubble(role, content) {
         const div = document.createElement("div");
         div.className = `message ${role}`;
