@@ -11,7 +11,7 @@ const { GEMINI_API_KEY, GROQ_API_KEY, PORT } = process.env;
 const google = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 const groq = new GroqAI({ apiKey: GROQ_API_KEY });
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 
 // 파일들에 대한 접근을 /public에 대해서 열어두겠다 (/public은 제외한 뒤에 경로들)
 app.use(express.static(path.join(__dirname, "public")));
