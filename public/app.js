@@ -272,6 +272,7 @@ function addMessageRow(role, content = "", imageDataUrl = null) {
 
   if (role === "assistant" && content) {
     bubble.innerHTML = DOMPurify.sanitize(marked.parse(content));
+    addCodeCopyButtons(bubble);
   } else if (content) {
     bubble.append(document.createTextNode(content));
   }
@@ -303,6 +304,27 @@ function addMessageRow(role, content = "", imageDataUrl = null) {
   chatContainer.append(row);
   chatContainer.scrollTop = chatContainer.scrollHeight;
   return bubble;
+}
+
+// ---- Code Block Copy Buttons ----
+function addCodeCopyButtons(bubble) {
+  bubble.querySelectorAll("pre").forEach((pre) => {
+    const btn = document.createElement("button");
+    btn.className = "code-copy-btn";
+    btn.textContent = "복사";
+    btn.addEventListener("click", () => {
+      const text = pre.querySelector("code")?.innerText || pre.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = "복사됨!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "복사";
+          btn.classList.remove("copied");
+        }, 1500);
+      });
+    });
+    pre.append(btn);
+  });
 }
 
 // ---- Streaming ----
@@ -342,6 +364,7 @@ async function streamResponse(bubble, imageBase64 = null, imageMimeType = null) 
         } catch {}
       }
     }
+    addCodeCopyButtons(bubble);
     return fullText;
   } catch {
     bubble.textContent = "오류가 발생했습니다. 다시 시도해주세요.";

@@ -374,13 +374,32 @@ select:focus { border-color: #0084ff; }
   font-size: 13px;
 }
 .bubble.assistant pre {
+  position: relative;
   background: #1e1e2e;
   color: #cdd6f4;
-  padding: 14px 16px;
+  padding: 38px 16px 14px;
   border-radius: 10px;
   overflow-x: auto;
   margin: 10px 0;
 }
+
+.code-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 10px;
+  font-size: 11px;
+  border: 1px solid #3d3d52;
+  border-radius: 5px;
+  background: #2a2a3e;
+  color: #a0a0b8;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.code-copy-btn:hover { background: #3a3a52; color: #fff; }
+.code-copy-btn.copied { color: #10a37f; border-color: #10a37f; }
 .bubble.assistant pre code {
   background: none;
   padding: 0;
