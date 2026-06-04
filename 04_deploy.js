@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/chat", async (req, res) => {
-  const { provider, model, messages } = req.body;
+  const { provider, model, messages, systemPrompt } = req.body;
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -26,10 +26,10 @@ app.post("/chat", async (req, res) => {
   try {
     if (provider === "google") {
       console.log("google 제공자 요청");
-      await streamGoogle(model, messages, res);
+      await streamGoogle(model, messages, systemPrompt, res);
     } else if (provider === "groq") {
       console.log("groq 제공자 요청");
-      await streamGroq(model, messages, res);
+      await streamGroq(model, messages, systemPrompt, res);
     } else {
       console.log("잘못된 Provider");
       res.write(`data: ${JSON.stringify({ error: "존재하지 않는 Provider" })}\n\n`);
@@ -42,13 +42,13 @@ app.post("/chat", async (req, res) => {
   res.end();
 });
 
-async function streamGoogle(model, messages, res) {
-  // Google은 role이 "user"/"model", OpenAI 호환은 "user"/"assistant"
+async function streamGoogle(model, messages, systemPrompt, res) {
   const contents = messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
     parts: [{ text: m.content }],
   }));
-  const stream = await google.models.generateContentStream({ model, contents });
+  const config = systemPrompt ? { systemInstruction: systemPrompt } : {};
+  const stream = await google.models.generateContentStream({ model, contents, config });
   for await (const chunk of stream) {
     if (chunk.text) {
       res.write(`data: ${JSON.stringify({ chunk: chunk.text })}\n\n`);
@@ -56,8 +56,11 @@ async function streamGoogle(model, messages, res) {
   }
 }
 
-async function streamGroq(model, messages, res) {
-  const stream = await groq.chat.completions.create({ model, messages, stream: true });
+async function streamGroq(model, messages, systemPrompt, res) {
+  const fullMessages = systemPrompt
+    ? [{ role: "system", content: systemPrompt }, ...messages]
+    : messages;
+  const stream = await groq.chat.completions.create({ model, messages: fullMessages, stream: true });
   for await (const chunk of stream) {
     const text = chunk.choices[0]?.delta?.content || "";
     if (text) {
