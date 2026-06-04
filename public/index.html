@@ -26,18 +26,29 @@
       <input name="ask" />
       <button>물어보기</button>
     </form>
+    <section id="chatContainer"></section>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
       const chatForm = document.querySelector("#chatForm");
+      const chatContainer = document.querySelector("#chatContainer");
       chatForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
         console.log("formData", ...formData);
+        console.log("[요청 시작]");
         const response = await axios.post(
           "/chat",
           Object.fromEntries(formData),
         );
+        console.log("[요청 완료]");
         console.log("response", response.data);
+        const { result } = response.data;
+        const p = document.createElement("p");
+        p.innerHTML = `
+          <strong>질문</strong> : ${formData.get("ask")}<br>
+          <strong>답변</strong> : ${result}
+          `;
+        chatContainer.append(p);
       });
     </script>
   </body>
