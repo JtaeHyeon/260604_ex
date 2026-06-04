@@ -431,7 +431,7 @@
       let regenBtn = null;
 
       // 스트리밍 로직 분리 — sendMessage와 regenerate 양쪽에서 재사용
-      async function streamResponse(bubble) {
+      async function streamResponse(bubble, imageBase64 = null, imageMimeType = null) {
         let fullText = "";
         try {
           const response = await fetch("/chat", {
@@ -442,8 +442,8 @@
               model: modelSelect.value,
               messages,
               systemPrompt: systemInput.value.trim(),
-              imageBase64: selectedImage?.base64 || null,
-              imageMimeType: selectedImage?.mimeType || null,
+              imageBase64,
+              imageMimeType,
             }),
           });
 
@@ -513,15 +513,17 @@
         // 새 메시지 전송 시 이전 재생성 버튼 제거
         if (regenBtn) { regenBtn.remove(); regenBtn = null; }
 
+        // 전송 전에 이미지 데이터 캡처 — removeImageBtn.click() 이후엔 selectedImage가 null이 됨
+        const imageBase64 = selectedImage?.base64 || null;
+        const imageMimeType = selectedImage?.mimeType || null;
         const imageDataUrl = selectedImage?.dataUrl || null;
+
         messages.push({ role: "user", content: ask });
         addBubble("user", ask, imageDataUrl);
-
-        // 이미지는 히스토리에 저장하지 않고 이번 요청에만 사용 후 초기화
-        removeImageBtn.click();
+        removeImageBtn.click(); // UI 초기화 (selectedImage = null)
 
         const bubble = addBubble("assistant", "");
-        const fullText = await streamResponse(bubble);
+        const fullText = await streamResponse(bubble, imageBase64, imageMimeType);
 
         if (fullText !== null) {
           messages.push({ role: "assistant", content: fullText });
