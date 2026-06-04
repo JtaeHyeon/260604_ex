@@ -4,545 +4,70 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI 챗봇</title>
-    <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        background: #f0f2f5;
-      }
-
-      #header {
-        padding: 12px 16px;
-        background: white;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      #header select {
-        padding: 6px 10px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 14px;
-        cursor: pointer;
-      }
-
-      .header-btn {
-        padding: 6px 12px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        background: white;
-        font-size: 13px;
-        cursor: pointer;
-        color: #444;
-        transition: background 0.15s;
-      }
-
-      .header-btn:hover { background: #f5f5f5; }
-
-      #systemArea {
-        padding: 8px 16px;
-        background: #fafafa;
-        border-bottom: 1px solid #e0e0e0;
-        display: none;
-      }
-
-      #systemArea.open { display: block; }
-
-      #systemInput {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 14px;
-        font-family: inherit;
-        resize: vertical;
-        min-height: 64px;
-        outline: none;
-        line-height: 1.5;
-      }
-
-      #systemInput:focus { border-color: #0084ff; }
-
-      #chatContainer {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px 16px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .bubble-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .bubble-wrapper.user { align-items: flex-end; }
-      .bubble-wrapper.assistant { align-items: flex-start; }
-
-      .message {
-        max-width: 72%;
-        padding: 10px 14px;
-        border-radius: 18px;
-        line-height: 1.6;
-        font-size: 15px;
-        word-break: break-word;
-      }
-
-      .message.user {
-        background: #0084ff;
-        color: white;
-        border-bottom-right-radius: 4px;
-        white-space: pre-wrap;
-      }
-
-      .message.assistant {
-        background: white;
-        color: #1a1a1a;
-        border: 1px solid #e8e8e8;
-        border-bottom-left-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-      }
-
-      /* 마크다운 렌더링 스타일 */
-      .message.assistant p { margin-bottom: 8px; }
-      .message.assistant p:last-child { margin-bottom: 0; }
-      .message.assistant h1,
-      .message.assistant h2,
-      .message.assistant h3 { margin: 10px 0 4px; font-size: 1em; font-weight: 700; }
-      .message.assistant ul,
-      .message.assistant ol { padding-left: 20px; margin-bottom: 8px; }
-      .message.assistant li { margin-bottom: 2px; }
-      .message.assistant code {
-        background: #f0f0f0;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 13px;
-      }
-      .message.assistant pre {
-        background: #f5f5f5;
-        padding: 12px;
-        border-radius: 8px;
-        overflow-x: auto;
-        margin: 8px 0;
-      }
-      .message.assistant pre code { background: none; padding: 0; }
-      .message.assistant strong { font-weight: 600; }
-      .message.assistant hr { border: none; border-top: 1px solid #e0e0e0; margin: 8px 0; }
-      .message.assistant blockquote {
-        border-left: 3px solid #ccc;
-        padding-left: 10px;
-        color: #666;
-        margin: 6px 0;
-      }
-
-      .message.assistant:empty::after {
-        content: "▋";
-        animation: blink 0.8s step-start infinite;
-      }
-
-      @keyframes blink { 50% { opacity: 0; } }
-
-      .copy-btn {
-        padding: 3px 10px;
-        font-size: 12px;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        background: white;
-        cursor: pointer;
-        color: #666;
-        opacity: 0;
-        transition: opacity 0.15s;
-      }
-
-      .bubble-wrapper.assistant:hover .copy-btn,
-      .bubble-wrapper.assistant:hover .regen-btn { opacity: 1; }
-      .copy-btn.copied { color: #0084ff; border-color: #0084ff; }
-
-      .regen-btn {
-        padding: 3px 10px;
-        font-size: 12px;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        background: white;
-        cursor: pointer;
-        color: #666;
-        opacity: 0;
-        transition: opacity 0.15s;
-      }
-
-      .bubble-image {
-        max-width: 220px;
-        max-height: 220px;
-        border-radius: 10px;
-        display: block;
-        margin-bottom: 6px;
-      }
-
-      #inputArea {
-        padding: 12px 16px;
-        background: white;
-        border-top: 1px solid #e0e0e0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      #imagePreviewBar {
-        display: none;
-        align-items: center;
-        gap: 8px;
-      }
-
-      #imagePreviewBar.visible { display: flex; }
-
-      #previewImg {
-        height: 56px;
-        width: 56px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid #e0e0e0;
-      }
-
-      #removeImageBtn {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        border: 1px solid #ccc;
-        background: white;
-        cursor: pointer;
-        font-size: 14px;
-        line-height: 1;
-        color: #666;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      #inputRow {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      #attachBtn {
-        padding: 8px 10px;
-        border: 1px solid #e0e0e0;
-        border-radius: 50%;
-        background: white;
-        cursor: pointer;
-        font-size: 16px;
-        line-height: 1;
-        transition: background 0.15s;
-        flex-shrink: 0;
-      }
-
-      #attachBtn:hover { background: #f5f5f5; }
-
-      #askInput {
-        flex: 1;
-        padding: 10px 16px;
-        border: 1px solid #e0e0e0;
-        border-radius: 24px;
-        outline: none;
-        font-size: 15px;
-        transition: border-color 0.2s;
-      }
-
-      #askInput:focus { border-color: #0084ff; }
-
-      #sendBtn {
-        padding: 10px 20px;
-        background: #0084ff;
-        color: white;
-        border: none;
-        border-radius: 24px;
-        cursor: pointer;
-        font-size: 15px;
-        transition: background 0.2s;
-      }
-
-      #sendBtn:hover:not(:disabled) { background: #006fe6; }
-      #sendBtn:disabled { background: #ccc; cursor: not-allowed; }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="header">
-      <select id="provider">
-        <option>google</option>
-        <option>groq</option>
-      </select>
-      <select id="model">
-        <option>gemma-4-26b-a4b-it</option>
-        <option>openai/gpt-oss-120b</option>
-      </select>
-      <button class="header-btn" id="systemToggleBtn">시스템 프롬프트</button>
-      <button class="header-btn" id="clearBtn">대화 초기화</button>
-    </div>
-
-    <div id="systemArea">
-      <textarea id="systemInput" placeholder="AI의 역할/페르소나를 설정하세요. 예: 너는 친절한 요리사야. 항상 요리 관련 답변만 해줘."></textarea>
-    </div>
-
-    <div id="chatContainer"></div>
-
-    <div id="inputArea">
-      <div id="imagePreviewBar">
-        <img id="previewImg" />
-        <button id="removeImageBtn">×</button>
-        <span id="previewName" style="font-size:13px;color:#666;"></span>
+    <aside id="sidebar">
+      <div id="sidebarHeader">
+        <button id="newChatBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          새 대화
+        </button>
       </div>
-      <div id="inputRow">
-        <input id="imageInput" type="file" accept="image/*" style="display:none" />
-        <button id="attachBtn" title="이미지 첨부">📎</button>
-        <input id="askInput" placeholder="메시지를 입력하세요..." />
-        <button id="sendBtn">전송</button>
+      <div id="sessionList"></div>
+    </aside>
+
+    <main id="main">
+      <header id="chatHeader">
+        <div id="modelSelects">
+          <select id="provider">
+            <option>google</option>
+            <option>groq</option>
+          </select>
+          <select id="model">
+            <option>gemma-4-26b-a4b-it</option>
+            <option>openai/gpt-oss-120b</option>
+          </select>
+        </div>
+        <div id="headerActions">
+          <button class="header-btn" id="systemToggleBtn">시스템 프롬프트</button>
+          <button class="header-btn" id="clearBtn">초기화</button>
+        </div>
+      </header>
+
+      <div id="systemArea">
+        <textarea id="systemInput" placeholder="AI의 역할/페르소나를 설정하세요. 예: 너는 친절한 요리사야. 항상 요리 관련 답변만 해줘."></textarea>
       </div>
-    </div>
+
+      <div id="chatContainer"></div>
+
+      <div id="inputArea">
+        <div id="inputWrapper">
+          <div id="imagePreviewBar">
+            <img id="previewImg" alt="preview" />
+            <span id="previewName"></span>
+            <button id="removeImageBtn">×</button>
+          </div>
+          <div id="inputRow">
+            <input id="imageInput" type="file" accept="image/*" style="display:none" />
+            <button id="attachBtn" title="이미지 첨부">📎</button>
+            <textarea id="askInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+            <button id="sendBtn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
-    <script>
-      const chatContainer = document.querySelector("#chatContainer");
-      const askInput = document.querySelector("#askInput");
-      const sendBtn = document.querySelector("#sendBtn");
-      const providerSelect = document.querySelector("#provider");
-      const modelSelect = document.querySelector("#model");
-      const systemToggleBtn = document.querySelector("#systemToggleBtn");
-      const systemArea = document.querySelector("#systemArea");
-      const systemInput = document.querySelector("#systemInput");
-      const clearBtn = document.querySelector("#clearBtn");
-      const attachBtn = document.querySelector("#attachBtn");
-      const imageInput = document.querySelector("#imageInput");
-      const imagePreviewBar = document.querySelector("#imagePreviewBar");
-      const previewImg = document.querySelector("#previewImg");
-      const previewName = document.querySelector("#previewName");
-      const removeImageBtn = document.querySelector("#removeImageBtn");
-
-      const messages = [];
-      let selectedImage = null; // { base64, mimeType, dataUrl }
-
-      attachBtn.addEventListener("click", () => imageInput.click());
-
-      imageInput.addEventListener("change", () => {
-        const file = imageInput.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const dataUrl = e.target.result;
-          // dataUrl 형식: "data:image/jpeg;base64,xxxx..."
-          const [meta, base64] = dataUrl.split(",");
-          const mimeType = meta.match(/:(.*?);/)[1];
-          selectedImage = { base64, mimeType, dataUrl };
-          previewImg.src = dataUrl;
-          previewName.textContent = file.name;
-          imagePreviewBar.classList.add("visible");
-        };
-        reader.readAsDataURL(file);
-        imageInput.value = ""; // 같은 파일 재선택 가능하도록
-      });
-
-      removeImageBtn.addEventListener("click", () => {
-        selectedImage = null;
-        imagePreviewBar.classList.remove("visible");
-        previewImg.src = "";
-        previewName.textContent = "";
-      });
-
-      const providerModelMap = {
-        google: "gemma-4-26b-a4b-it",
-        groq: "openai/gpt-oss-120b",
-      };
-
-      const modelProviderMap = {
-        "gemma-4-26b-a4b-it": "google",
-        "openai/gpt-oss-120b": "groq",
-      };
-
-      providerSelect.addEventListener("change", () => {
-        modelSelect.value = providerModelMap[providerSelect.value];
-      });
-
-      modelSelect.addEventListener("change", () => {
-        providerSelect.value = modelProviderMap[modelSelect.value];
-      });
-
-      systemToggleBtn.addEventListener("click", () => {
-        systemArea.classList.toggle("open");
-      });
-
-      clearBtn.addEventListener("click", () => {
-        messages.length = 0;
-        chatContainer.innerHTML = "";
-      });
-
-      function addBubble(role, content = "", imageDataUrl = null) {
-        const wrapper = document.createElement("div");
-        wrapper.className = `bubble-wrapper ${role}`;
-
-        const div = document.createElement("div");
-        div.className = `message ${role}`;
-
-        if (imageDataUrl) {
-          const img = document.createElement("img");
-          img.src = imageDataUrl;
-          img.className = "bubble-image";
-          div.append(img);
-        }
-
-        if (role === "assistant" && content) {
-          div.innerHTML = DOMPurify.sanitize(marked.parse(content));
-        } else if (content) {
-          div.append(document.createTextNode(content));
-        }
-
-        wrapper.append(div);
-
-        if (role === "assistant") {
-          const copyBtn = document.createElement("button");
-          copyBtn.className = "copy-btn";
-          copyBtn.textContent = "복사";
-          copyBtn.addEventListener("click", () => {
-            navigator.clipboard.writeText(div._rawText || div.textContent).then(() => {
-              copyBtn.textContent = "복사됨!";
-              copyBtn.classList.add("copied");
-              setTimeout(() => {
-                copyBtn.textContent = "복사";
-                copyBtn.classList.remove("copied");
-              }, 1500);
-            });
-          });
-          wrapper.append(copyBtn);
-        }
-
-        chatContainer.append(wrapper);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        return div;
-      }
-
-      let regenBtn = null;
-
-      // 스트리밍 로직 분리 — sendMessage와 regenerate 양쪽에서 재사용
-      async function streamResponse(bubble, imageBase64 = null, imageMimeType = null) {
-        let fullText = "";
-        try {
-          const response = await fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              provider: providerSelect.value,
-              model: modelSelect.value,
-              messages,
-              systemPrompt: systemInput.value.trim(),
-              imageBase64,
-              imageMimeType,
-            }),
-          });
-
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-
-          outer: while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            for (const line of decoder.decode(value).split("\n")) {
-              if (!line.startsWith("data: ")) continue;
-              const data = line.slice(6);
-              if (data === "[DONE]") break outer;
-              try {
-                const { chunk, error } = JSON.parse(data);
-                if (error) throw new Error(error);
-                fullText += chunk;
-                bubble._rawText = fullText;
-                bubble.innerHTML = DOMPurify.sanitize(marked.parse(fullText));
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-              } catch {}
-            }
-          }
-          return fullText;
-        } catch (err) {
-          bubble.textContent = "오류가 발생했습니다. 다시 시도해주세요.";
-          return null;
-        }
-      }
-
-      function addRegenBtn(bubble) {
-        regenBtn = document.createElement("button");
-        regenBtn.className = "regen-btn";
-        regenBtn.textContent = "다시 생성";
-        regenBtn.addEventListener("click", regenerate);
-        bubble.parentElement.append(regenBtn);
-      }
-
-      async function regenerate() {
-        // 마지막 assistant 버블 제거 후 messages에서도 제거
-        const wrappers = chatContainer.querySelectorAll(".bubble-wrapper.assistant");
-        wrappers[wrappers.length - 1].remove();
-        messages.pop();
-
-        if (regenBtn) { regenBtn.remove(); regenBtn = null; }
-
-        sendBtn.disabled = true;
-        const bubble = addBubble("assistant", "");
-        const fullText = await streamResponse(bubble);
-
-        if (fullText !== null) {
-          messages.push({ role: "assistant", content: fullText });
-          addRegenBtn(bubble);
-        }
-
-        sendBtn.disabled = false;
-        askInput.focus();
-      }
-
-      async function sendMessage() {
-        const ask = askInput.value.trim();
-        if (!ask && !selectedImage) return;
-
-        askInput.value = "";
-        sendBtn.disabled = true;
-
-        // 새 메시지 전송 시 이전 재생성 버튼 제거
-        if (regenBtn) { regenBtn.remove(); regenBtn = null; }
-
-        // 전송 전에 이미지 데이터 캡처 — removeImageBtn.click() 이후엔 selectedImage가 null이 됨
-        const imageBase64 = selectedImage?.base64 || null;
-        const imageMimeType = selectedImage?.mimeType || null;
-        const imageDataUrl = selectedImage?.dataUrl || null;
-
-        messages.push({ role: "user", content: ask });
-        addBubble("user", ask, imageDataUrl);
-        removeImageBtn.click(); // UI 초기화 (selectedImage = null)
-
-        const bubble = addBubble("assistant", "");
-        const fullText = await streamResponse(bubble, imageBase64, imageMimeType);
-
-        if (fullText !== null) {
-          messages.push({ role: "assistant", content: fullText });
-          addRegenBtn(bubble);
-        } else {
-          messages.pop(); // 오류 시 user 메시지도 히스토리에서 제거
-        }
-
-        sendBtn.disabled = false;
-        askInput.focus();
-      }
-
-      sendBtn.addEventListener("click", sendMessage);
-      askInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
-          e.preventDefault();
-          sendMessage();
-        }
-      });
-    </script>
+    <script src="app.js"></script>
   </body>
 </html>
