@@ -163,8 +163,21 @@
         transition: opacity 0.15s;
       }
 
-      .bubble-wrapper.assistant:hover .copy-btn { opacity: 1; }
+      .bubble-wrapper.assistant:hover .copy-btn,
+      .bubble-wrapper.assistant:hover .regen-btn { opacity: 1; }
       .copy-btn.copied { color: #0084ff; border-color: #0084ff; }
+
+      .regen-btn {
+        padding: 3px 10px;
+        font-size: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background: white;
+        cursor: pointer;
+        color: #666;
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
 
       #inputArea {
         padding: 12px 16px;
@@ -306,19 +319,11 @@
         return div;
       }
 
-      async function sendMessage() {
-        const ask = askInput.value.trim();
-        if (!ask) return;
+      let regenBtn = null;
 
-        askInput.value = "";
-        sendBtn.disabled = true;
-
-        messages.push({ role: "user", content: ask });
-        addBubble("user", ask);
-
-        const bubble = addBubble("assistant", "");
+      // 스트리밍 로직 분리 — sendMessage와 regenerate 양쪽에서 재사용
+      async function streamResponse(bubble) {
         let fullText = "";
-
         try {
           const response = await fetch("/chat", {
             method: "POST",
@@ -337,7 +342,6 @@
           outer: while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             for (const line of decoder.decode(value).split("\n")) {
               if (!line.startsWith("data: ")) continue;
               const data = line.slice(6);
@@ -352,11 +356,63 @@
               } catch {}
             }
           }
-
-          messages.push({ role: "assistant", content: fullText });
+          return fullText;
         } catch (err) {
           bubble.textContent = "오류가 발생했습니다. 다시 시도해주세요.";
-          messages.pop();
+          return null;
+        }
+      }
+
+      function addRegenBtn(bubble) {
+        regenBtn = document.createElement("button");
+        regenBtn.className = "regen-btn";
+        regenBtn.textContent = "다시 생성";
+        regenBtn.addEventListener("click", regenerate);
+        bubble.parentElement.append(regenBtn);
+      }
+
+      async function regenerate() {
+        // 마지막 assistant 버블 제거 후 messages에서도 제거
+        const wrappers = chatContainer.querySelectorAll(".bubble-wrapper.assistant");
+        wrappers[wrappers.length - 1].remove();
+        messages.pop();
+
+        if (regenBtn) { regenBtn.remove(); regenBtn = null; }
+
+        sendBtn.disabled = true;
+        const bubble = addBubble("assistant", "");
+        const fullText = await streamResponse(bubble);
+
+        if (fullText !== null) {
+          messages.push({ role: "assistant", content: fullText });
+          addRegenBtn(bubble);
+        }
+
+        sendBtn.disabled = false;
+        askInput.focus();
+      }
+
+      async function sendMessage() {
+        const ask = askInput.value.trim();
+        if (!ask) return;
+
+        askInput.value = "";
+        sendBtn.disabled = true;
+
+        // 새 메시지 전송 시 이전 재생성 버튼 제거
+        if (regenBtn) { regenBtn.remove(); regenBtn = null; }
+
+        messages.push({ role: "user", content: ask });
+        addBubble("user", ask);
+
+        const bubble = addBubble("assistant", "");
+        const fullText = await streamResponse(bubble);
+
+        if (fullText !== null) {
+          messages.push({ role: "assistant", content: fullText });
+          addRegenBtn(bubble);
+        } else {
+          messages.pop(); // 오류 시 user 메시지도 히스토리에서 제거
         }
 
         sendBtn.disabled = false;
