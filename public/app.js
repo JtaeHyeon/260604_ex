@@ -16,6 +16,7 @@ const previewName    = document.querySelector("#previewName");
 const removeImageBtn = document.querySelector("#removeImageBtn");
 const newChatBtn     = document.querySelector("#newChatBtn");
 const sessionList    = document.querySelector("#sessionList");
+const emptyState     = document.querySelector("#emptyState");
 
 // ---- State ----
 let messages        = [];
@@ -57,7 +58,9 @@ systemToggleBtn.addEventListener("click", () => {
 clearBtn.addEventListener("click", () => {
   messages = [];
   chatContainer.innerHTML = "";
+  chatContainer.append(emptyState);
   if (regenBtn) regenBtn = null;
+  updateEmptyState();
   saveCurrentSession();
 });
 
@@ -100,6 +103,21 @@ askInput.addEventListener("input", () => {
 function updateSendBtn() {
   sendBtn.disabled = !askInput.value.trim() && !selectedImage;
 }
+
+function updateEmptyState() {
+  emptyState.classList.toggle("hidden", messages.length > 0);
+}
+
+// 추천 카드 클릭 시 입력창에 채우고 포커스
+document.querySelectorAll(".suggestion-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    askInput.value = card.dataset.prompt;
+    askInput.style.height = "auto";
+    askInput.style.height = Math.min(askInput.scrollHeight, 180) + "px";
+    updateSendBtn();
+    askInput.focus();
+  });
+});
 
 // ---- Session Management ----
 function loadSessions() {
@@ -166,7 +184,9 @@ function loadSession(sessionId) {
   regenBtn = null;
 
   chatContainer.innerHTML = "";
+  chatContainer.append(emptyState);
   messages.forEach((m) => addMessageRow(m.role, m.content));
+  updateEmptyState();
 
   renderSessionList();
 }
@@ -213,8 +233,10 @@ function renderSessionList() {
 
 newChatBtn.addEventListener("click", () => {
   chatContainer.innerHTML = "";
+  chatContainer.append(emptyState);
   regenBtn = null;
   createNewSession();
+  updateEmptyState();
 });
 
 // ---- Message Rendering ----
@@ -371,6 +393,7 @@ async function sendMessage() {
   const imageDataUrl  = selectedImage?.dataUrl  || null;
 
   messages.push({ role: "user", content: ask || "(이미지 첨부)" });
+  updateEmptyState();
   addMessageRow("user", ask, imageDataUrl);
   removeImageBtn.click();
 

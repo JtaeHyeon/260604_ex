@@ -41,7 +41,35 @@
         <textarea id="systemInput" placeholder="AI의 역할/페르소나를 설정하세요. 예: 너는 친절한 요리사야. 항상 요리 관련 답변만 해줘."></textarea>
       </div>
 
-      <div id="chatContainer"></div>
+      <div id="chatContainer">
+        <div id="emptyState">
+          <div id="emptyIcon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div id="emptyTitle">무엇을 도와드릴까요?</div>
+          <div id="emptySubtitle">아래 예시를 클릭하거나 직접 입력해보세요</div>
+          <div id="suggestionCards">
+            <button class="suggestion-card" data-prompt="오늘 점심 메뉴 추천해줘">
+              <div class="card-icon">🍱</div>
+              <div class="card-text">오늘 점심 메뉴 추천해줘</div>
+            </button>
+            <button class="suggestion-card" data-prompt="파이썬으로 피보나치 수열 코드 짜줘">
+              <div class="card-icon">💻</div>
+              <div class="card-text">파이썬으로 피보나치 수열 코드 짜줘</div>
+            </button>
+            <button class="suggestion-card" data-prompt="영어 비즈니스 이메일 작성법 알려줘">
+              <div class="card-icon">✉️</div>
+              <div class="card-text">영어 비즈니스 이메일 작성법 알려줘</div>
+            </button>
+            <button class="suggestion-card" data-prompt="제주도 2박 3일 여행 코스 추천해줘">
+              <div class="card-icon">🗺️</div>
+              <div class="card-text">제주도 2박 3일 여행 코스 추천해줘</div>
+            </button>
+          </div>
+        </div>
+      </div>
 
       <div id="inputArea">
         <div id="inputWrapper">
