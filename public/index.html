@@ -9,19 +9,34 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 
     <!-- SEO -->
-    <meta name="description" content="Google Gemini와 Groq AI를 활용한 멀티 프로바이더 AI 챗봇. 스트리밍 응답, 이미지 분석, 대화 히스토리 지원." />
+    <meta
+      name="description"
+      content="Google Gemini와 Groq AI를 활용한 멀티 프로바이더 AI 챗봇. 스트리밍 응답, 이미지 분석, 대화 히스토리 지원."
+    />
 
     <!-- Open Graph -->
-    <meta property="og:type"        content="website" />
-    <meta property="og:title"       content="AI 챗봇" />
-    <meta property="og:description" content="Google Gemini와 Groq AI를 활용한 멀티 프로바이더 AI 챗봇. 스트리밍 응답, 이미지 분석, 대화 히스토리 지원." />
-    <meta property="og:image"       content="/og-image.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="AI 챗봇" />
+    <meta
+      property="og:description"
+      content="Google Gemini와 Groq AI를 활용한 멀티 프로바이더 AI 챗봇. 스트리밍 응답, 이미지 분석, 대화 히스토리 지원."
+    />
+    <meta
+      property="og:image"
+      content="https://two60604-ex-a6rb.onrender.com/og-image.svg"
+    />
 
     <!-- Twitter Card -->
-    <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:title"       content="AI 챗봇" />
-    <meta name="twitter:description" content="Google Gemini와 Groq AI를 활용한 멀티 프로바이더 AI 챗봇." />
-    <meta name="twitter:image"       content="/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AI 챗봇" />
+    <meta
+      name="twitter:description"
+      content="Google Gemini와 Groq AI를 활용한 멀티 프로바이더 AI 챗봇."
+    />
+    <meta
+      name="twitter:image"
+      content="https://two60604-ex-a6rb.onrender.com/og-image.svg"
+    />
 
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -29,8 +44,16 @@
     <aside id="sidebar">
       <div id="sidebarHeader">
         <button id="newChatBtn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           새 대화
         </button>
@@ -51,44 +74,80 @@
           </select>
         </div>
         <div id="headerActions">
-          <button class="header-btn" id="systemToggleBtn">시스템 프롬프트</button>
+          <button class="header-btn" id="systemToggleBtn">
+            시스템 프롬프트
+          </button>
           <button class="header-btn" id="clearBtn">초기화</button>
         </div>
       </header>
 
       <div id="systemArea">
-        <textarea id="systemInput" placeholder="AI의 역할/페르소나를 설정하세요. 예: 너는 친절한 요리사야. 항상 요리 관련 답변만 해줘."></textarea>
+        <textarea
+          id="systemInput"
+          placeholder="AI의 역할/페르소나를 설정하세요. 예: 너는 친절한 요리사야. 항상 요리 관련 답변만 해줘."
+        ></textarea>
       </div>
 
       <button id="scrollBottomBtn" title="맨 아래로">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <polyline points="19 12 12 19 5 12" />
         </svg>
       </button>
 
       <div id="chatContainer">
         <div id="emptyState">
           <div id="emptyIcon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              />
             </svg>
           </div>
           <div id="emptyTitle">무엇을 도와드릴까요?</div>
           <div id="emptySubtitle">아래 예시를 클릭하거나 직접 입력해보세요</div>
           <div id="suggestionCards">
-            <button class="suggestion-card" data-prompt="오늘 점심 메뉴 추천해줘">
+            <button
+              class="suggestion-card"
+              data-prompt="오늘 점심 메뉴 추천해줘"
+            >
               <div class="card-icon">🍱</div>
               <div class="card-text">오늘 점심 메뉴 추천해줘</div>
             </button>
-            <button class="suggestion-card" data-prompt="파이썬으로 피보나치 수열 코드 짜줘">
+            <button
+              class="suggestion-card"
+              data-prompt="파이썬으로 피보나치 수열 코드 짜줘"
+            >
               <div class="card-icon">💻</div>
               <div class="card-text">파이썬으로 피보나치 수열 코드 짜줘</div>
             </button>
-            <button class="suggestion-card" data-prompt="영어 비즈니스 이메일 작성법 알려줘">
+            <button
+              class="suggestion-card"
+              data-prompt="영어 비즈니스 이메일 작성법 알려줘"
+            >
               <div class="card-icon">✉️</div>
               <div class="card-text">영어 비즈니스 이메일 작성법 알려줘</div>
             </button>
-            <button class="suggestion-card" data-prompt="제주도 2박 3일 여행 코스 추천해줘">
+            <button
+              class="suggestion-card"
+              data-prompt="제주도 2박 3일 여행 코스 추천해줘"
+            >
               <div class="card-icon">🗺️</div>
               <div class="card-text">제주도 2박 3일 여행 코스 추천해줘</div>
             </button>
@@ -104,12 +163,27 @@
             <button id="removeImageBtn">×</button>
           </div>
           <div id="inputRow">
-            <input id="imageInput" type="file" accept="image/*" style="display:none" />
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              style="display: none"
+            />
             <button id="attachBtn" title="이미지 첨부">📎</button>
-            <textarea id="askInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+            <textarea
+              id="askInput"
+              placeholder="메시지를 입력하세요..."
+              rows="1"
+            ></textarea>
             <button id="sendBtn" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
