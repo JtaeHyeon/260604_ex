@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 챗봇</title>
+    <style>
+      #chatForm {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: start;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="chatForm">
+      <select name="provider">
+        <option>google</option>
+        <option>groq</option>
+      </select>
+      <select name="model">
+        <option>gemma-4-26b-a4b-it</option>
+        <option>openai/gpt-oss-120b</option>
+      </select>
+      <input name="ask" />
+      <button>물어보기</button>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const chatForm = document.querySelector("#chatForm");
+      chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        console.log("formData", ...formData);
+        const response = await axios.post(
+          "/chat",
+          Object.fromEntries(formData),
+        );
+        console.log("response", response.data);
+      });
+    </script>
+  </body>
+</html>
